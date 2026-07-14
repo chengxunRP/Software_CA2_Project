@@ -1,6 +1,23 @@
 <%- include('partials/header') %>
 <%- include('partials/navbar') %>
 
+<%
+const stats =
+    typeof statistics !== 'undefined'
+        ? statistics
+        : {
+            pending: 0,
+            approved: 0,
+            borrowed: 0,
+            overdue: 0
+        };
+
+const reservationRows =
+    typeof reservations !== 'undefined' && Array.isArray(reservations)
+        ? reservations
+        : [];
+%>
+
 <main class="flex-grow-1">
   <div class="page-container">
 
@@ -14,6 +31,12 @@
       </a>
     </div>
 
+    <% if (typeof errorMessage !== 'undefined' && errorMessage) { %>
+      <div class="alert alert-danger" role="alert">
+        <%= errorMessage %>
+      </div>
+    <% } %>
+
     <!-- Summary Cards -->
     <div class="row g-3 mb-4">
       <div class="col-6 col-xl-3">
@@ -21,7 +44,7 @@
           <div class="card-body">
             <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
             <div>
-              <div class="stat-value"><%= reservationSummary.pending %></div>
+              <div class="stat-value"><%= stats.pending %></div>
               <div class="stat-label">Pending</div>
             </div>
           </div>
@@ -32,7 +55,7 @@
           <div class="card-body">
             <div class="stat-icon"><i class="bi bi-patch-check-fill"></i></div>
             <div>
-              <div class="stat-value"><%= reservationSummary.approved %></div>
+              <div class="stat-value"><%= stats.approved %></div>
               <div class="stat-label">Approved</div>
             </div>
           </div>
@@ -43,7 +66,7 @@
           <div class="card-body">
             <div class="stat-icon"><i class="bi bi-box-arrow-right"></i></div>
             <div>
-              <div class="stat-value"><%= reservationSummary.borrowed %></div>
+              <div class="stat-value"><%= stats.borrowed %></div>
               <div class="stat-label">Borrowed</div>
             </div>
           </div>
@@ -54,7 +77,7 @@
           <div class="card-body">
             <div class="stat-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
             <div>
-              <div class="stat-value"><%= reservationSummary.overdue %></div>
+              <div class="stat-value"><%= stats.overdue %></div>
               <div class="stat-label">Overdue</div>
             </div>
           </div>
@@ -97,76 +120,86 @@
 
     <!-- Reservations Table -->
     <div class="card table-card">
-      <div class="table-responsive-wrapper">
-        <table class="table app-table align-middle mb-0" id="reservationsTable">
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Equipment</th>
-              <th>Reserved By</th>
-              <th>Start Date</th>
-              <th>End Date</th>
-              <th>Purpose</th>
-              <th>Status</th>
-              <th class="text-end">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% reservationList.forEach(function(res) { %>
-              <tr class="reservation-row"
-                  data-search="<%= (res.equipmentName + ' ' + res.borrowerName).toLowerCase() %>"
-                  data-status="<%= res.status %>"
-                  data-start="<%= res.startDate %>">
-                <td>#<%= res.id %></td>
-                <td class="fw-semibold text-dark"><%= res.equipmentName %></td>
-                <td><%= res.borrowerName %></td>
-                <td><%= res.startDate %></td>
-                <td><%= res.endDate %></td>
-                <td class="reservation-purpose" title="<%= res.purpose %>"><%= res.purpose %></td>
-                <td>
-                  <span class="badge status-badge status-<%= res.status.toLowerCase() %>"><%= res.status %></span>
-                </td>
-                <td>
-                  <div class="row-actions justify-content-end">
-                    <button type="button" class="btn btn-outline-brand reservation-view-btn"
-                      data-bs-toggle="modal" data-bs-target="#reservationViewModal"
-                      data-id="<%= res.id %>"
-                      data-equipment="<%= res.equipmentName %>"
-                      data-borrower="<%= res.borrowerName %>"
-                      data-start="<%= res.startDate %>"
-                      data-end="<%= res.endDate %>"
-                      data-purpose="<%= res.purpose %>"
-                      data-status="<%= res.status %>"
-                      title="View reservation">
-                      <i class="bi bi-eye"></i>
-                    </button>
-                    <button type="button" class="btn btn-outline-danger reservation-cancel-btn"
-                      data-id="<%= res.id %>" title="Cancel reservation">
-                      <i class="bi bi-x-lg"></i>
-                    </button>
-                  </div>
-                </td>
+      <% if (reservationRows.length === 0) { %>
+        <div class="empty-state">
+          <i class="bi bi-inbox"></i>
+          <p class="mb-3">No reservations found. Create your first equipment reservation.</p>
+          <a href="/reservations/new" class="btn btn-brand">
+            <i class="bi bi-plus-lg me-1"></i>New Reservation
+          </a>
+        </div>
+      <% } else { %>
+        <div class="table-responsive-wrapper">
+          <table class="table app-table align-middle mb-0" id="reservationsTable">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Equipment</th>
+                <th>Reserved By</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Purpose</th>
+                <th>Status</th>
+                <th class="text-end">Actions</th>
               </tr>
-            <% }); %>
-          </tbody>
-        </table>
-      </div>
+            </thead>
+            <tbody>
+              <% reservationRows.forEach(function(reservation) { %>
+                <tr class="reservation-row"
+                    data-search="<%= (reservation.equipment_name + ' ' + reservation.reserved_by).toLowerCase() %>"
+                    data-status="<%= reservation.status %>"
+                    data-start="<%= reservation.start_date %>">
+                  <td>#<%= reservation.reservation_id %></td>
+                  <td class="fw-semibold text-dark"><%= reservation.equipment_name %></td>
+                  <td><%= reservation.reserved_by %></td>
+                  <td><%= reservation.start_date %></td>
+                  <td><%= reservation.end_date %></td>
+                  <td class="reservation-purpose" title="<%= reservation.purpose %>"><%= reservation.purpose %></td>
+                  <td>
+                    <span class="badge status-badge status-<%= reservation.status.toLowerCase() %>"><%= reservation.status %></span>
+                  </td>
+                  <td>
+                    <div class="row-actions justify-content-end">
+                      <button type="button" class="btn btn-outline-brand reservation-view-btn"
+                        data-bs-toggle="modal" data-bs-target="#reservationViewModal"
+                        data-id="<%= reservation.reservation_id %>"
+                        data-equipment="<%= reservation.equipment_name %>"
+                        data-borrower="<%= reservation.reserved_by %>"
+                        data-start="<%= reservation.start_date %>"
+                        data-end="<%= reservation.end_date %>"
+                        data-purpose="<%= reservation.purpose %>"
+                        data-status="<%= reservation.status %>"
+                        title="View reservation">
+                        <i class="bi bi-eye"></i>
+                      </button>
+                      <button type="button" class="btn btn-outline-danger reservation-cancel-btn"
+                        data-id="<%= reservation.reservation_id %>" title="Cancel reservation">
+                        <i class="bi bi-x-lg"></i>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              <% }); %>
+            </tbody>
+          </table>
+        </div>
 
-      <div class="empty-state d-none" id="reservationsEmptyState">
-        <i class="bi bi-inbox"></i>
-        No reservations match your filters.
-      </div>
+        <div class="empty-state d-none" id="reservationsEmptyState">
+          <i class="bi bi-inbox"></i>
+          No reservations match your filters.
+        </div>
 
-      <div class="table-footer-bar">
-        <span id="reservationResultCount">Showing <%= reservationList.length %> of <%= reservationList.length %> reservations</span>
-        <nav aria-label="Reservations pagination">
-          <ul class="pagination">
-            <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">Previous</a></li>
-            <li class="page-item active"><a class="page-link" href="#">1</a></li>
-            <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
-          </ul>
-        </nav>
-      </div>
+        <div class="table-footer-bar">
+          <span id="reservationResultCount">Showing <%= reservationRows.length %> of <%= reservationRows.length %> reservations</span>
+          <nav aria-label="Reservations pagination">
+            <ul class="pagination">
+              <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">Previous</a></li>
+              <li class="page-item active"><a class="page-link" href="#">1</a></li>
+              <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+            </ul>
+          </nav>
+        </div>
+      <% } %>
     </div>
 
   </div>

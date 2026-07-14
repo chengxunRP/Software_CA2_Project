@@ -1,0 +1,62 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="flex-grow-1">
+  <div class="page-container">
+    <nav aria-label="breadcrumb" class="mb-3">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="/dashboard" class="link-brand">Dashboard</a></li>
+        <li class="breadcrumb-item"><a href="/equipment" class="link-brand">Equipment</a></li>
+        <li class="breadcrumb-item active" aria-current="page"><%= item.name %></li>
+      </ol>
+    </nav>
+
+    <div class="card">
+      <div class="row g-0">
+        <div class="col-md-5">
+          <div class="equipment-detail-thumb">
+            <img src="<%= item.image %>" alt="<%= item.name %>">
+          </div>
+        </div>
+        <div class="col-md-7">
+          <div class="card-body p-4">
+            <div class="d-flex justify-content-between align-items-start mb-2">
+              <span class="equipment-category"><%= item.category %></span>
+              <span class="badge status-badge status-<%= item.status.toLowerCase() %>"><%= item.status %></span>
+            </div>
+            <h2 class="mb-3"><%= item.name %></h2>
+
+            <dl class="row equipment-meta mb-4">
+              <dt class="col-sm-4">Asset Code</dt>
+              <dd class="col-sm-8"><%= item.assetCode %></dd>
+              <dt class="col-sm-4">Category</dt>
+              <dd class="col-sm-8"><%= item.category %></dd>
+              <dt class="col-sm-4">Condition</dt>
+              <dd class="col-sm-8"><%= item.condition %></dd>
+              <dt class="col-sm-4">Storage Location</dt>
+              <dd class="col-sm-8"><%= item.location %></dd>
+              <dt class="col-sm-4">Current Status</dt>
+              <dd class="col-sm-8"><%= item.status %></dd>
+            </dl>
+
+            <h6 class="text-muted text-uppercase small mb-2">Description</h6>
+            <p class="mb-4"><%= item.description %></p>
+
+            <% if (item.status === "Available") { %>
+              <a href="/reservations/new?equipment_id=<%= item.id %>" class="btn btn-brand btn-lg">
+                <i class="bi bi-calendar-plus me-1"></i>Reserve This Equipment
+              </a>
+            <% } else { %>
+              <button class="btn btn-secondary btn-lg" disabled>
+                Currently <%= item.status %>
+              </button>
+            <% } %>
+            <a href="/equipment" class="btn btn-outline-brand btn-lg ms-2">Back to Catalogue</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer') %>

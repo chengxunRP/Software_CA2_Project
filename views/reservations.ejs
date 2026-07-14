@@ -1,0 +1,208 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="flex-grow-1">
+  <div class="page-container">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Reservations</h1>
+        <p class="page-subtitle">Track and manage every equipment loan and reservation request in one place.</p>
+      </div>
+      <a href="/reservations/new" class="btn btn-brand">
+        <i class="bi bi-plus-lg me-1"></i>New Reservation
+      </a>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-xl-3">
+        <div class="card stat-card stat-pending">
+          <div class="card-body">
+            <div class="stat-icon"><i class="bi bi-hourglass-split"></i></div>
+            <div>
+              <div class="stat-value"><%= reservationSummary.pending %></div>
+              <div class="stat-label">Pending</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-xl-3">
+        <div class="card stat-card stat-approved">
+          <div class="card-body">
+            <div class="stat-icon"><i class="bi bi-patch-check-fill"></i></div>
+            <div>
+              <div class="stat-value"><%= reservationSummary.approved %></div>
+              <div class="stat-label">Approved</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-xl-3">
+        <div class="card stat-card stat-borrowed">
+          <div class="card-body">
+            <div class="stat-icon"><i class="bi bi-box-arrow-right"></i></div>
+            <div>
+              <div class="stat-value"><%= reservationSummary.borrowed %></div>
+              <div class="stat-label">Borrowed</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-xl-3">
+        <div class="card stat-card stat-overdue">
+          <div class="card-body">
+            <div class="stat-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <div>
+              <div class="stat-value"><%= reservationSummary.overdue %></div>
+              <div class="stat-label">Overdue</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Filter Bar (client-side UI filtering only, no backend logic) -->
+    <div class="card filter-card">
+      <div class="card-body">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-4">
+            <label for="reservationSearch" class="form-label">Search</label>
+            <div class="search-input-group">
+              <i class="bi bi-search"></i>
+              <input type="text" class="form-control" id="reservationSearch" placeholder="Search equipment or borrower">
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <label for="reservationStatusFilter" class="form-label">Status</label>
+            <select class="form-select" id="reservationStatusFilter">
+              <option value="">All Statuses</option>
+              <% reservationStatusOptions.forEach(function(status) { %>
+                <option value="<%= status %>"><%= status %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="col-6 col-md-3">
+            <label for="reservationDateFilter" class="form-label">Start Date From</label>
+            <input type="date" class="form-control" id="reservationDateFilter">
+          </div>
+          <div class="col-md-2">
+            <button type="button" id="resetReservationFilters" class="btn btn-outline-brand w-100" title="Reset filters">
+              <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reservations Table -->
+    <div class="card table-card">
+      <div class="table-responsive-wrapper">
+        <table class="table app-table align-middle mb-0" id="reservationsTable">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Equipment</th>
+              <th>Reserved By</th>
+              <th>Start Date</th>
+              <th>End Date</th>
+              <th>Purpose</th>
+              <th>Status</th>
+              <th class="text-end">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% reservationList.forEach(function(res) { %>
+              <tr class="reservation-row"
+                  data-search="<%= (res.equipmentName + ' ' + res.borrowerName).toLowerCase() %>"
+                  data-status="<%= res.status %>"
+                  data-start="<%= res.startDate %>">
+                <td>#<%= res.id %></td>
+                <td class="fw-semibold text-dark"><%= res.equipmentName %></td>
+                <td><%= res.borrowerName %></td>
+                <td><%= res.startDate %></td>
+                <td><%= res.endDate %></td>
+                <td class="reservation-purpose" title="<%= res.purpose %>"><%= res.purpose %></td>
+                <td>
+                  <span class="badge status-badge status-<%= res.status.toLowerCase() %>"><%= res.status %></span>
+                </td>
+                <td>
+                  <div class="row-actions justify-content-end">
+                    <button type="button" class="btn btn-outline-brand reservation-view-btn"
+                      data-bs-toggle="modal" data-bs-target="#reservationViewModal"
+                      data-id="<%= res.id %>"
+                      data-equipment="<%= res.equipmentName %>"
+                      data-borrower="<%= res.borrowerName %>"
+                      data-start="<%= res.startDate %>"
+                      data-end="<%= res.endDate %>"
+                      data-purpose="<%= res.purpose %>"
+                      data-status="<%= res.status %>"
+                      title="View reservation">
+                      <i class="bi bi-eye"></i>
+                    </button>
+                    <button type="button" class="btn btn-outline-danger reservation-cancel-btn"
+                      data-id="<%= res.id %>" title="Cancel reservation">
+                      <i class="bi bi-x-lg"></i>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="empty-state d-none" id="reservationsEmptyState">
+        <i class="bi bi-inbox"></i>
+        No reservations match your filters.
+      </div>
+
+      <div class="table-footer-bar">
+        <span id="reservationResultCount">Showing <%= reservationList.length %> of <%= reservationList.length %> reservations</span>
+        <nav aria-label="Reservations pagination">
+          <ul class="pagination">
+            <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">Previous</a></li>
+            <li class="page-item active"><a class="page-link" href="#">1</a></li>
+            <li class="page-item disabled"><a class="page-link" href="#">Next</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<!-- View Reservation Modal -->
+<div class="modal fade" id="reservationViewModal" tabindex="-1" aria-labelledby="reservationViewModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="reservationViewModalLabel">Reservation Details</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <dl class="row equipment-meta mb-0">
+          <dt class="col-sm-4">Reservation #</dt>
+          <dd class="col-sm-8" id="modalReservationId"></dd>
+          <dt class="col-sm-4">Equipment</dt>
+          <dd class="col-sm-8" id="modalReservationEquipment"></dd>
+          <dt class="col-sm-4">Reserved By</dt>
+          <dd class="col-sm-8" id="modalReservationBorrower"></dd>
+          <dt class="col-sm-4">Start Date</dt>
+          <dd class="col-sm-8" id="modalReservationStart"></dd>
+          <dt class="col-sm-4">End Date</dt>
+          <dd class="col-sm-8" id="modalReservationEnd"></dd>
+          <dt class="col-sm-4">Purpose</dt>
+          <dd class="col-sm-8" id="modalReservationPurpose"></dd>
+          <dt class="col-sm-4">Status</dt>
+          <dd class="col-sm-8" id="modalReservationStatus"></dd>
+        </dl>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-brand" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,54 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="flex-grow-1 auth-shell">
+  <div class="auth-panel">
+    <span class="auth-panel-icon"><i class="bi bi-person-plus-fill"></i></span>
+    <h2>Join EquipTrack</h2>
+    <p>Create an account to start borrowing and reserving equipment for your projects and events.</p>
+    <ul class="auth-panel-list">
+      <li><i class="bi bi-check-circle-fill"></i>Instant access to the equipment catalogue</li>
+      <li><i class="bi bi-check-circle-fill"></i>Submit and track reservation requests</li>
+      <li><i class="bi bi-check-circle-fill"></i>Get notified on approvals and due dates</li>
+    </ul>
+  </div>
+
+  <div class="auth-form-side">
+    <div class="card auth-card">
+      <div class="card-body p-4 p-md-5">
+        <div class="mb-4">
+          <h2 class="mb-1">Create an Account</h2>
+          <p class="text-muted mb-0">Register to start borrowing and reserving equipment.</p>
+        </div>
+
+        <form action="/register" method="POST" novalidate>
+          <div class="mb-3">
+            <label for="name" class="form-label">Full Name</label>
+            <input type="text" class="form-control" id="name" name="name" placeholder="Jane Doe" required>
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email address</label>
+            <input type="email" class="form-control" id="email" name="email" placeholder="you@example.com" required>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" class="form-control" id="password" name="password" placeholder="Create a password" required>
+          </div>
+          <div class="form-check mb-4">
+            <input class="form-check-input" type="checkbox" id="agreeTerms" required>
+            <label class="form-check-label small" for="agreeTerms">
+              I agree to the Terms of Use and Equipment Policy
+            </label>
+          </div>
+          <button type="submit" class="btn btn-brand btn-lg w-100">Create Account</button>
+        </form>
+
+        <p class="text-center text-muted mt-4 mb-0">
+          Already have an account? <a href="/login" class="link-brand">Login here</a>
+        </p>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer') %>

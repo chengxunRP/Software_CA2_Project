@@ -1,0 +1,95 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="flex-grow-1">
+  <div class="page-container">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Equipment Catalogue</h1>
+        <p class="page-subtitle">Browse all equipment available for loan and reservation across campus stores.</p>
+      </div>
+    </div>
+
+    <!-- Filter Bar (client-side UI filtering only, no backend logic) -->
+    <div class="card filter-card">
+      <div class="card-body">
+        <div class="row g-3 align-items-end">
+          <div class="col-md-5">
+            <label for="equipmentSearch" class="form-label">Search Equipment</label>
+            <div class="search-input-group">
+              <i class="bi bi-search"></i>
+              <input type="text" class="form-control" id="equipmentSearch" placeholder="Search by name or asset code">
+            </div>
+          </div>
+          <div class="col-6 col-md-3">
+            <label for="categoryFilter" class="form-label">Category</label>
+            <select class="form-select" id="categoryFilter">
+              <option value="">All Categories</option>
+              <% categories.forEach(function(category) { %>
+                <option value="<%= category %>"><%= category %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="col-6 col-md-3">
+            <label for="availabilityFilter" class="form-label">Availability</label>
+            <select class="form-select" id="availabilityFilter">
+              <option value="">All Statuses</option>
+              <% statusOptions.forEach(function(status) { %>
+                <option value="<%= status %>"><%= status %></option>
+              <% }); %>
+            </select>
+          </div>
+          <div class="col-md-1">
+            <button type="button" id="resetEquipmentFilters" class="btn btn-outline-brand w-100" title="Reset filters">
+              <i class="bi bi-arrow-counterclockwise"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="text-muted small mb-3" id="equipmentResultCount">Showing <%= equipmentList.length %> of <%= equipmentList.length %> items</p>
+
+    <!-- Equipment Grid -->
+    <div class="row g-4" id="equipmentGrid">
+      <% equipmentList.forEach(function(item) { %>
+        <div class="col-sm-6 col-lg-4 col-xl-3 equipment-card-col"
+             data-name="<%= item.name.toLowerCase() %>"
+             data-code="<%= item.assetCode.toLowerCase() %>"
+             data-category="<%= item.category %>"
+             data-status="<%= item.status %>">
+          <div class="card equipment-card">
+            <div class="equipment-thumb">
+              <span class="equipment-asset-code"><%= item.assetCode %></span>
+              <img src="<%= item.image %>" alt="<%= item.name %>">
+              <span class="badge status-badge status-<%= item.status.toLowerCase() %> equipment-badge"><%= item.status %></span>
+            </div>
+            <div class="card-body">
+              <span class="equipment-category"><%= item.category %></span>
+              <h5 class="card-title"><%= item.name %></h5>
+
+              <div class="equipment-meta-row">
+                <span>Condition: <strong><%= item.condition %></strong></span>
+                <span><%= item.location %></span>
+              </div>
+
+              <div class="equipment-card-actions">
+                <a href="/equipment/<%= item.id %>" class="btn btn-outline-brand">View Details</a>
+                <a href="/reservations/new?equipment_id=<%= item.id %>" class="btn btn-brand">Reserve</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      <% }); %>
+    </div>
+
+    <div class="empty-state d-none" id="equipmentEmptyState">
+      <i class="bi bi-inbox"></i>
+      No equipment matches your filters.
+    </div>
+
+  </div>
+</main>
+
+<%- include('partials/footer') %>

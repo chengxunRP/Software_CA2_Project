@@ -1,0 +1,63 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="flex-grow-1">
+  <div class="page-container">
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="d-flex align-items-center gap-3 mb-4">
+          <span class="form-header-icon"><i class="bi bi-calendar-plus"></i></span>
+          <div>
+            <h1 class="page-title mb-1">New Reservation</h1>
+            <p class="page-subtitle">Fill in the details below to request equipment for your project or event.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-body p-4">
+            <form action="/reservations/add" method="POST" novalidate>
+              <div class="mb-3">
+                <label for="equipment_id" class="form-label">Equipment</label>
+                <select class="form-select" id="equipment_id" name="equipment_id" required>
+                  <option value="" disabled <%= !selectedId ? "selected" : "" %>>Select equipment to reserve</option>
+                  <% equipmentList.forEach(function(item) { %>
+                    <option value="<%= item.id %>" <%= (selectedId === item.id) ? "selected" : "" %>>
+                      <%= item.name %> (<%= item.assetCode %>) &mdash; <%= item.status %>
+                    </option>
+                  <% }); %>
+                </select>
+                <div class="form-text">Only items marked "Available" can currently be borrowed.</div>
+              </div>
+
+              <div class="row">
+                <div class="col-md-6 mb-3">
+                  <label for="start_date" class="form-label">Start Date</label>
+                  <input type="date" class="form-control" id="start_date" name="start_date" required>
+                </div>
+                <div class="col-md-6 mb-3">
+                  <label for="end_date" class="form-label">End Date</label>
+                  <input type="date" class="form-control" id="end_date" name="end_date" required>
+                </div>
+              </div>
+
+              <div class="mb-4">
+                <label for="purpose" class="form-label">Purpose of Use</label>
+                <textarea class="form-control" id="purpose" name="purpose" rows="4"
+                  placeholder="Briefly describe why you need this equipment (e.g. class project, event, research)" required></textarea>
+              </div>
+
+              <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-brand btn-lg">
+                  <i class="bi bi-check2-circle me-1"></i>Submit Reservation
+                </button>
+                <a href="/equipment" class="btn btn-outline-brand btn-lg">Cancel</a>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<%- include('partials/footer') %>

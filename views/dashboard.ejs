@@ -1,0 +1,136 @@
+<%- include('partials/header') %>
+<%- include('partials/navbar') %>
+
+<main class="flex-grow-1">
+  <div class="page-container">
+
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Dashboard</h1>
+        <p class="page-subtitle">Overview of equipment availability and recent reservation activity across the campus inventory.</p>
+      </div>
+      <a href="/equipment" class="btn btn-brand">
+        <i class="bi bi-search me-1"></i>Browse Equipment
+      </a>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="row g-3 mb-4">
+      <div class="col-6 col-xl-3">
+        <div class="card stat-card stat-total">
+          <div class="card-body">
+            <div class="stat-icon"><i class="bi bi-boxes"></i></div>
+            <div>
+              <div class="stat-value"><%= summary.total %></div>
+              <div class="stat-label">Total Equipment</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-xl-3">
+        <div class="card stat-card stat-available">
+          <div class="card-body">
+            <div class="stat-icon"><i class="bi bi-check-circle-fill"></i></div>
+            <div>
+              <div class="stat-value"><%= summary.available %></div>
+              <div class="stat-label">Available</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-xl-3">
+        <div class="card stat-card stat-active">
+          <div class="card-body">
+            <div class="stat-icon"><i class="bi bi-arrow-left-right"></i></div>
+            <div>
+              <div class="stat-value"><%= summary.activeLoans %></div>
+              <div class="stat-label">Active Loans</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-6 col-xl-3">
+        <div class="card stat-card stat-overdue">
+          <div class="card-body">
+            <div class="stat-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+            <div>
+              <div class="stat-value"><%= summary.overdue %></div>
+              <div class="stat-label">Overdue</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4">
+      <!-- Recent Reservations -->
+      <div class="col-lg-7">
+        <div class="card table-card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-clock-history me-2"></i>Recent Reservations</span>
+            <a href="/reservations" class="small link-brand">View all</a>
+          </div>
+          <div class="table-responsive-wrapper">
+            <table class="table app-table align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Equipment</th>
+                  <th>Reserved By</th>
+                  <th>Dates</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% recentReservations.forEach(function(res) { %>
+                  <tr>
+                    <td class="fw-semibold text-dark"><%= res.equipmentName %></td>
+                    <td><%= res.borrowerName %></td>
+                    <td class="text-nowrap"><%= res.startDate %> &rarr; <%= res.endDate %></td>
+                    <td>
+                      <span class="badge status-badge status-<%= res.status.toLowerCase() %>"><%= res.status %></span>
+                    </td>
+                  </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Equipment Requiring Attention -->
+      <div class="col-lg-5">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-tools me-2"></i>Equipment Requiring Attention</span>
+            <a href="/equipment" class="small link-brand">View all</a>
+          </div>
+
+          <% if (attentionEquipment.length === 0) { %>
+            <div class="empty-state">
+              <i class="bi bi-emoji-smile"></i>
+              No equipment currently needs attention.
+            </div>
+          <% } else { %>
+            <ul class="attention-list">
+              <% attentionEquipment.forEach(function(item) { %>
+                <li class="attention-item <%= item.status === 'Damaged' ? 'is-damaged' : 'is-maintenance' %>">
+                  <div class="attention-icon">
+                    <i class="bi <%= item.status === 'Damaged' ? 'bi-exclamation-octagon-fill' : 'bi-wrench-adjustable-circle-fill' %>"></i>
+                  </div>
+                  <div class="flex-grow-1">
+                    <div class="attention-title"><%= item.name %></div>
+                    <div class="attention-meta"><%= item.assetCode %> &middot; <%= item.location %></div>
+                  </div>
+                  <span class="badge status-badge status-<%= item.status.toLowerCase() %>"><%= item.status %></span>
+                </li>
+              <% }); %>
+            </ul>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<%- include('partials/footer') %>
